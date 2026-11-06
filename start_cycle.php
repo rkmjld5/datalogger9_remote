@@ -34,17 +34,20 @@ try {
         throw new Exception('Database connection unavailable');
     }
 
-    // Microsecond-based unique BIGINT cycle ID.
-    $cycleId = (int)floor(microtime(true) * 1000000);
+    // Generate a microsecond-based cycle ID.
+    // Keep it as a string when binding and returning it.
+    $cycleId = sprintf('%.0f', microtime(true) * 1000000);
 
     $stmt = $conn->prepare(
-        "INSERT INTO sensor_cycles (cycle_id, completed) VALUES (?, 0)"
+        "INSERT INTO sensor_cycles (cycle_id, completed, completed_by)
+         VALUES (?, 0, NULL)"
     );
+
     if (!$stmt) {
         throw new Exception($conn->error);
     }
 
-    $stmt->bind_param('i', $cycleId);
+    $stmt->bind_param('s', $cycleId);
     $stmt->execute();
     $stmt->close();
 
@@ -56,5 +59,9 @@ try {
 
 } catch (Throwable $e) {
     error_log('start_cycle.php: ' . $e->getMessage());
-    reply(500, ['ok' => false, 'error' => 'Server error']);
+
+    reply(500, [
+        'ok' => false,
+        'error' => 'Server error'
+    ]);
 }
