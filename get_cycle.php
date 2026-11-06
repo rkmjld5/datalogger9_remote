@@ -1,6 +1,6 @@
 <?php
 // get_cycle.php
-// Slaves obtain the latest active cycle created by ESP0001.
+// ESP0002 and ESP0003 obtain the latest active cycle.
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -28,12 +28,12 @@ try {
         throw new Exception('Database connection unavailable');
     }
 
-    // Only cycles created in the last 120 seconds are eligible.
+    // Only an uncompleted cycle created within the last 120 seconds.
     $sql = "
         SELECT cycle_id
         FROM sensor_cycles
         WHERE completed = 0
-          AND created_at >= DATE_SUB(NOW(), INTERVAL 120 SECOND)
+          AND created_at >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 120 SECOND)
         ORDER BY created_at DESC, cycle_id DESC
         LIMIT 1
     ";
@@ -62,5 +62,9 @@ try {
 
 } catch (Throwable $e) {
     error_log('get_cycle.php: ' . $e->getMessage());
-    reply(500, ['ok' => false, 'error' => 'Server error']);
+
+    reply(500, [
+        'ok' => false,
+        'error' => 'Server error'
+    ]);
 }
