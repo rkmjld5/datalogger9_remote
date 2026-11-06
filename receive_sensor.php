@@ -1,4 +1,3 @@
-
 <?php
 // receive_sensor.php
 // Receives one reading from each ESP8266 and creates one combined logs row.
