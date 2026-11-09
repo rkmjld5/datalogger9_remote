@@ -1,4 +1,3 @@
-
 <?php
 // Project: datalogger9_remote
 // Receives one already-combined nine-column CSV record from LittleFS.
