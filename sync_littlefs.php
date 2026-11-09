@@ -316,22 +316,40 @@ try {
        8. Validate field lengths
        ----------------------------------------------------- */
 
-    if (
-        strlen($value1) > 30 ||
-        strlen($value2) > 30 ||
-        strlen($value3) > 50 ||
-        strlen($timezone) > 64 ||
-        strlen($deviceId) > 32
-    ) {
+   $lengths = [
+    'value1' => strlen($value1),
+    'value2' => strlen($value2),
+    'value3' => strlen($value3),
+    'timezone' => strlen($timezone),
+    'device_id' => strlen($deviceId)
+];
 
-        syncReply(
-            400,
-            [
-                'ok' => false,
-                'message' => 'A field exceeds its database column length'
-            ]
-        );
+$limits = [
+    'value1' => 30,
+    'value2' => 30,
+    'value3' => 50,
+    'timezone' => 64,
+    'device_id' => 32
+];
+
+$tooLong = [];
+
+foreach ($lengths as $field => $length) {
+    if ($length > $limits[$field]) {
+        $tooLong[$field] = [
+            'actual_length' => $length,
+            'maximum_length' => $limits[$field]
+        ];
     }
+}
+
+if (!empty($tooLong)) {
+    syncReply(400, [
+        'ok' => false,
+        'message' => 'Field length validation failed',
+        'fields' => $tooLong
+    ]);
+}
 
 
     /* -----------------------------------------------------
